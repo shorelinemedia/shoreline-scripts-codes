@@ -6,6 +6,12 @@ By default the body hook is `wp_body_open` but not all themes have that hook in 
 
 To add a hook after the opening `<body>` tag in your template, use:
 
-```php
+````php
 <?php do_action( 'wp_body_open' ); ?>
-```
+````
+
+### Installation
+
+Install the [Github Updater](https://github.com/afragen/github-updater/archive/master.zip) plugin by uploading the ZIP file and activating on your wordpress install.
+
+Install the plugin through the Github Updater's Install Plugin section by using the full github URL of `https://github.com/shorelinemedia/shoreline-scripts-codes` and then activate the plugin under Plugins section
