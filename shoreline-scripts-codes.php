@@ -3,7 +3,7 @@
 * Plugin Name: 					Scripts and Codes
 * Plugin URI: 					https://github.com/shorelinemedia/shoreline-scripts-codes
 * Description: 					Adds a section in the Customizer to add scripts and codes to header, footer and just after body
-* Version: 							1.1
+* Version: 							1.2
 * Author: 							Shoreline Media
 * Author URI: 					https://shoreline.media
 * License:           		GNU General Public License v2
@@ -50,6 +50,9 @@ class SL9_Scripts_Codes {
     // Setup Customizer
     add_action("customize_register", array( $this, 'customize_register' ), 20);
 
+    // Add CodeMirror to HTML fields in Customizer
+    add_action( 'admin_enqueue_scripts', array( $this, 'initCodeMirror' ) );
+
     // Allow plugins to disable output via filter
     $this->is_disabled = apply_filters( 'sl9_scripts_codes_disable', false );
 
@@ -63,6 +66,11 @@ class SL9_Scripts_Codes {
   }
 
   public function customize_register( $wp_customize ) {
+		// only admin user can access this page
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 
     $wp_customize->add_section("scriptscodes", array(
       "title" => __('Scripts &amp; Codes', $this->namespace),
@@ -114,6 +122,41 @@ class SL9_Scripts_Codes {
       'settings'      => 'scriptscodes_footer',
       'type'          => 'textarea'
     ) ) );
+  }
+
+  // Add CodeMirror to our fields in customizer
+  public function initCodeMirror() {
+		// Make sure that we don't fatal error on WP versions before 4.9.
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			return;
+		}
+
+		global $pagenow;
+    $screen = get_current_screen();
+    
+    if ( $screen && $screen->base == 'customize' ) {
+
+      // Enqueue code editor and settings for manipulating HTML.
+      $settings = wp_enqueue_code_editor( array( 'type' => 'text/html' ) );
+
+      // Bail if user disabled CodeMirror.
+      if ( false === $settings ) {
+        return;
+      } 
+      
+      // Custom styles for the form fields.
+      $styles = '.CodeMirror{ border: 1px solid #ccd0d4; }';
+
+      wp_add_inline_style( 'code-editor', $styles );
+
+      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_head", %s ); } );', wp_json_encode( $settings ) ) );
+      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_body", %s ); } );', wp_json_encode( $settings ) ) );
+      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_footer", %s ); } );', wp_json_encode( $settings ) ) );
+
+
+
+    } // endif on the customizer screen
+
   }
 
   // Output our codes sections
