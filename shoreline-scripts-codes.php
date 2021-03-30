@@ -50,9 +50,6 @@ class SL9_Scripts_Codes {
     // Setup Customizer
     add_action("customize_register", array( $this, 'customize_register' ), 20);
 
-    // Add CodeMirror to HTML fields in Customizer
-    add_action( 'admin_enqueue_scripts', array( $this, 'initCodeMirror' ) );
-
     // Allow plugins to disable output via filter
     $this->is_disabled = apply_filters( 'sl9_scripts_codes_disable', false );
 
@@ -101,62 +98,27 @@ class SL9_Scripts_Codes {
       'settings'      => 'scriptscodes_body_hook',
       'type'          => 'text'
     ) ) );
-    $wp_customize->add_control( new WP_Customize_Control( $wp_customize, 'scriptscodes_head', array(
+    $wp_customize->add_control( new WP_Customize_Code_Editor_Control( $wp_customize, 'scriptscodes_head', array(
       'label'         => __( 'Header Code', $this->namespace ),
       'description'   => __( 'Add scripts and other code that will appear on every page inside the head', $this->namespace ),
       'section'       => 'scriptscodes',
       'settings'      => 'scriptscodes_head',
-      'type'          => 'textarea'
+      'code_type'     => 'text/html'
     ) ) );
-    $wp_customize->add_control( new WP_Customize_Control( $wp_customize, 'scriptscodes_body', array(
+    $wp_customize->add_control( new WP_Customize_Code_Editor_Control( $wp_customize, 'scriptscodes_body', array(
       'label'         => __( 'Body Code', $this->namespace ),
       'description'   => __( 'Add scripts and other code that will appear on every page just after the starting body tag', $this->namespace ),
       'section'       => 'scriptscodes',
       'settings'      => 'scriptscodes_body',
-      'type'          => 'textarea'
+      'code_type'     => 'text/html'
     ) ) );
-    $wp_customize->add_control( new WP_Customize_Control( $wp_customize, 'scriptscodes_footer', array(
+    $wp_customize->add_control( new WP_Customize_Code_Editor_Control( $wp_customize, 'scriptscodes_footer', array(
       'label'         => __( 'Footer Code', $this->namespace ),
       'description'   => __( 'Add scripts and other code that will appear on every page in the footer', $this->namespace ),
       'section'       => 'scriptscodes',
       'settings'      => 'scriptscodes_footer',
-      'type'          => 'textarea'
+      'code_type'     => 'text/html'
     ) ) );
-  }
-
-  // Add CodeMirror to our fields in customizer
-  public function initCodeMirror() {
-		// Make sure that we don't fatal error on WP versions before 4.9.
-		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
-			return;
-		}
-
-		global $pagenow;
-    $screen = get_current_screen();
-    
-    if ( $screen && $screen->base == 'customize' ) {
-
-      // Enqueue code editor and settings for manipulating HTML.
-      $settings = wp_enqueue_code_editor( array( 'type' => 'text/html' ) );
-
-      // Bail if user disabled CodeMirror.
-      if ( false === $settings ) {
-        return;
-      } 
-      
-      // Custom styles for the form fields.
-      $styles = '.CodeMirror{ border: 1px solid #ccd0d4; }';
-
-      wp_add_inline_style( 'code-editor', $styles );
-
-      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_head", %s ); } );', wp_json_encode( $settings ) ) );
-      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_body", %s ); } );', wp_json_encode( $settings ) ) );
-      wp_add_inline_script( 'code-editor', sprintf( 'jQuery( function() { wp.codeEditor.initialize( "_customize-input-scriptscodes_footer", %s ); } );', wp_json_encode( $settings ) ) );
-
-
-
-    } // endif on the customizer screen
-
   }
 
   // Output our codes sections
