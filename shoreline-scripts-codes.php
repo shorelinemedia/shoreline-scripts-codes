@@ -3,7 +3,7 @@
 * Plugin Name: 					Scripts and Codes
 * Plugin URI: 					https://github.com/shorelinemedia/shoreline-scripts-codes
 * Description: 					Adds a section in the Customizer to add scripts and codes to header, footer and just after body
-* Version: 							1.2
+* Version: 							1.3
 * Author: 							Shoreline Media
 * Author URI: 					https://shoreline.media
 * License:           		GNU General Public License v2
